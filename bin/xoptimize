@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'ise'
+require 'highline'
+require 'smart_colored/extend'
+
+include ISE
+
+prompt = HighLine.new
+
+#TODO: Parse command-line flags with trollop.
+
+#Read in the project specified on the command line,
+begin
+  project = Project.load(ARGV.first) unless ARGV.empty?
+  project ||= ProjectNavigator::most_recent_project
+rescue
+  puts
+  puts "Oops!".bold.red + " I couldn't open the file specified. Check your file-name and try again.".red
+  puts
+  exit
+end
+
+puts
+puts "You're about to move the working directory for #{project.filename.bold} to RAM.".yellow
+puts "This will dramatically speed up synthesis and save disk space, but you'll need to re-run 'Generate Programming Files' after each reboot."
+puts
+exit unless prompt.agree('Do you want to continue? [y/n]'.bold + " ") 
+
+#Minimize the project's runtime, and save it.
+project.minimize_runtime!
+project.save
+
+puts
+puts "Success!".green.bold + " Generated files (including bitfiles) will be created in: #{project.working_directory.underline}/.".green
+puts "If Project Navigator asks you if you'd like to reload the project file, select " + "yes".bold + "."
+puts

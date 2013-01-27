@@ -1,21 +1,29 @@
 
-require 'nokogiri'
 require 'ise'
+require 'cgi'
+require 'nokogiri'
+require 'tmpdir'
 
 module ISE
 
   class Project 
-  
+
+    GoalProperty = 'Last Applied Goal'
+    ShortNameProperty = 'PROP_DesignName'
     OutputNameProperty = 'Output File Name'
     TopLevelFileProperty = 'Implementation Top File'
+    WorkingDirectoryProperty = 'Working Directory'
+
+    attr_reader :filename
 
 
     #
     # Creates a new ISE Project from an XML string or file object. 
     #
-    def initialize(xml, base_path)
+    def initialize(xml, filename)
       @xml = Nokogiri.XML(xml)
-      @base_path = File.dirname(base_path)
+      @filename = filename
+      @base_path = File.dirname(filename)
     end
 
 
@@ -26,6 +34,12 @@ module ISE
       new(File::read(file_path), file_path)
     end
 
+    #
+    # Writes the project to disk, saving any changes.
+    #
+    def save(file_path=@filename)
+      File::write(file_path, @xml)
+    end
   
     #
     # Returns the value of a project property.
@@ -53,6 +67,26 @@ module ISE
     end
 
     #
+    # Attempts to minimize synthesis runtime of a _single run_. 
+    #
+    # This will place all intermediary files in RAM- which means that synthesis
+    # results won't be preserved between reboots!
+    #
+    def minimize_runtime!
+
+      #Compute the path in which temporary synthesis files should be created.
+      shortname = CGI::escape(get_property(ShortNameProperty))
+      temp_path = Dir::mktmpdir([shortname, ''])
+  
+      #Synthesize from RAM.
+      set_property(WorkingDirectoryProperty, temp_path)
+
+      #Ask the project to focus on runtime over performance.
+      set_property(GoalProperty, 'Minimum Runtime')
+
+    end
+
+    #
     # Returns a path to the top-level file in the given project. 
     #
     # absoulute_path: If set when the project file's path is known, an absolute path will be returned.
@@ -72,14 +106,24 @@ module ISE
     end
 
     #
+    # Returns the project's working directory.
+    #
+    def working_directory
+      File.expand_path(get_property(WorkingDirectoryProperty), @base_path)
+    end
+
+    #
     # Returns the best-guess path to the most recently generated bit file,
     # or nil if we weren't able to find one.
     #
     def bit_file
 
+      #Determine ISE's working directory.
+      working_directory = get_property(WorkingDirectoryProperty)
+
       #Find an absolute path at which the most recently generated bit file should reside.
       name = get_property(OutputNameProperty)
-      name = File.expand_path("#{name}.bit", @base_path)
+      name = File.expand_path("#{working_directory}/#{name}.bit", @base_path)
 
       #If it exists, return it.
       File::exists?(name) ? name : nil
