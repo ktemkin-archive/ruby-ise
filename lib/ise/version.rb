@@ -1,5 +1,3 @@
-module Ruby
-  module Ise
-    VERSION = "0.4.0"
-  end
+module ISE
+  VERSION = "0.5.0"
 end

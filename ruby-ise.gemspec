@@ -6,11 +6,11 @@ require 'ise/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "ruby-ise"
-  gem.version       = Ruby::Ise::VERSION
+  gem.version       = ISE::VERSION
   gem.authors       = ["Kyle J. Temkin"]
   gem.email         = ["ktemkin@binghamton.edu"]
-  gem.description   = %q{Simple gem which extracts meta-data from Xilinx ISE files. Intended to simplify using Rake with ruby-adept, and with ISE/XST.}
-  gem.summary       = %q{Simple gem which extracts metadata from Xilinx ISE files.}
+  gem.description   = %q{Simple gem which extracts and modifies meta-data from Xilinx ISE files. Intended to simplify using Rake with ruby-adept, and with ISE/XST.}
+  gem.summary       = %q{Simple gem which extracts and modifies metadata from Xilinx ISE files.}
   gem.homepage      = "http://www.github.com/ktemkin/ruby-ise"
 
   gem.files         = `git ls-files`.split($/)
