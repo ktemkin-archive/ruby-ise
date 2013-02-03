@@ -4,7 +4,7 @@ require 'ise'
 describe ISE::Project do
  
   #Operate on the same file provided.
-  subject { ISE::Project.load(File.expand_path('../project.xise', __FILE__)) }
+  subject { ISE::Project.load(File.expand_path('../test_data/project.xise', __FILE__)) }
 
 
   describe ".get_property" do
@@ -22,7 +22,7 @@ describe ISE::Project do
   describe ".top_level_file" do
 
     let(:relative_path) { './toplevel.vhd' }
-    let(:full_path) { File.expand_path(relative_path, "#{__FILE__}/..") } 
+    let(:full_path) { File.expand_path(relative_path, "#{__FILE__}/../test_data") } 
 
     context "when absolute_path is false" do
       it "should return a relative path to top-level file, as it appears in the project file" do
@@ -43,7 +43,7 @@ describe ISE::Project do
   #
   describe ".bit_file" do
 
-    let(:full_path) { File.expand_path('toplevel.bit', "#{__FILE__}/..") } 
+    let(:full_path) { File.expand_path('toplevel.bit', "#{__FILE__}/../test_data") } 
 
     it "should return the absolute path to the top-level bit file, if it exists" do
       subject.bit_file.should == full_path

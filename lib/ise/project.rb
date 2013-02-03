@@ -6,8 +6,9 @@ require 'tmpdir'
 
 module ISE
 
-  class Project 
-
+  class Project < XMLFile
+    
+    
     GoalProperty = 'Last Applied Goal'
     ShortNameProperty = 'PROP_DesignName'
     OutputNameProperty = 'Output File Name'
@@ -17,30 +18,6 @@ module ISE
     attr_reader :filename
 
 
-    #
-    # Creates a new ISE Project from an XML string or file object. 
-    #
-    def initialize(xml, filename)
-      @xml = Nokogiri.XML(xml)
-      @filename = filename
-      @base_path = File.dirname(filename)
-    end
-
-
-    #
-    # Factory method which creates a new Project from a project file.
-    #
-    def self.load(file_path)
-      new(File::read(file_path), file_path)
-    end
-
-    #
-    # Writes the project to disk, saving any changes.
-    #
-    def save(file_path=@filename)
-      File::write(file_path, @xml)
-    end
-  
     #
     # Returns the value of a project property.
     #
