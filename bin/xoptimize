@@ -22,8 +22,12 @@ rescue
 end
 
 puts
-puts "You're about to move the working directory for #{project.filename.bold} to RAM.".yellow
-puts "This will dramatically speed up synthesis and save disk space, but you'll need to re-run 'Generate Programming Files' after each reboot."
+puts "You're about to move the working directory for" 
+puts  project.filename.bold.yellow
+puts  " to RAM.".yellow
+puts
+puts "This will dramatically speed up synthesis and save disk space," 
+puts "but you'll need to re-run 'Generate Programming Files' after each reboot."
 puts
 exit unless prompt.agree('Do you want to continue? [y/n]'.bold + " ") 
 
