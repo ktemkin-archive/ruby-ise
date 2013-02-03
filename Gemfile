@@ -5,3 +5,7 @@ gem "nokogiri"
 gem "rake"
 gem "highline"
 gem "smart_colored"
+
+group :test do
+  gem "rspec"
+end
