@@ -11,6 +11,7 @@ module ISE
 
     #
     # Determines the location of the ISE preferences file.
+    # TODO: Generalize to work on Windows?
     #
     def self.ise_preference_file_path
       "~/.config/Xilinx/ISE.conf"
@@ -49,7 +50,7 @@ module ISE
 
       #Traverse the path, creating any "folders" necessary along the way.
       until keys.one?
-        target[keys.first] = {} unless target[keys.first].respond_to?(:[])
+        target[keys.first] = {} unless target[keys.first].is_a?(Hash)
         target = target[keys.shift]
       end
      

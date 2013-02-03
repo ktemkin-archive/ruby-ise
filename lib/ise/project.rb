@@ -8,7 +8,6 @@ module ISE
 
   class Project < XMLFile
     
-    
     GoalProperty = 'Last Applied Goal'
     ShortNameProperty = 'PROP_DesignName'
     OutputNameProperty = 'Output File Name'
@@ -16,7 +15,6 @@ module ISE
     WorkingDirectoryProperty = 'Working Directory'
 
     attr_reader :filename
-
 
     #
     # Returns the value of a project property.

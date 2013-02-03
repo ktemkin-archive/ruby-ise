@@ -5,6 +5,16 @@ describe ISE::Symbol do
   #Operate on the sample symbol file.
   subject { ISE::Symbol.load(File.expand_path('../test_data/symbol.sym', __FILE__)) }
 
+  #Provide an example node for some tests to operate on.
+  let(:node) { subject.pins.first }
+
+  #Get a reference to the Symbol's internal XML.
+  let(:xml) { subject.instance_variable_get(:@xml) }
+
+  def pin_should_exist(name)
+    xml.at_css("symbol graph attrtext[type=\"pin #{name}\"]").should_not be_nil, "Pin #{name} should exist, but does not."
+  end
+
   describe ".name" do
     it "should return the symbol's name" do
       subject.name.should == "BusMux16"
@@ -45,6 +55,13 @@ describe ISE::Symbol do
     end
   end
 
+  describe ".each_attribute" do
+    #TODO: better test that doesn't require enumerator funcitonality?
+    it "should iterate over each of the attributes in the file" do
+      subject.each_attribute.to_a.should == [['BusWidth', '8']]
+    end
+  end
+
   describe ".pins" do 
     it "should return a list of each pin in the design" do
       #Generate a list of expected pin names.
@@ -58,25 +75,57 @@ describe ISE::Symbol do
   end
 
   describe ".rename_pin" do
-
-    #Provide an example node to operate on.
-    let(:node) { subject.pins.first }
-
-    #Get a reference to the Symbol's internal XML.
-    let(:xml) { subject.instance_variable_get(:@xml) }
-
     it "should change the name of the provided pin" do
       subject.set_pin_name(node, 'a(1:0)') 
       node.attribute('name').value.should == 'a(1:0)'
     end
 
     it "should change the name of any pin labels referencing the pin" do
-      #Change the first pin to a(1:0), a name that does not already exist in the design;
-      #then verify that that new name exists.
       subject.set_pin_name(node, 'a(1:0)') 
-      xml.at_css('symbol graph attrtext[type="pin a(1:0)"]').should_not be_nil
+      pin_should_exist('a(1:0)')
+    end
+  end
+
+  describe ".set_pin_bounds!" do
+
+    it "should change the boundaries of the given pin to match its arguments" do
+      subject.set_pin_bounds!(node, 14, 3)
+      pin_should_exist('i0(14:3)')
     end
 
+  end
+
+  describe ".set_pin_width!" do
+
+    context "when provided with an MSB-to-the-left range" do
+      it "should move the upper (left) bound to create the correct width" do
+        subject.set_pin_width!(node, 4)
+        pin_should_exist('i0(3:0)')
+      end
+    end
+
+    context "when provided with an LSB-to-the-left range" do
+      it "should move the upper (right) bound to create the correct width" do
+        
+        #Create an LSB-to-the-left range.
+        subject.set_pin_name(node, 'i0(0:7)')
+
+        subject.set_pin_width!(node, 4)
+        pin_should_exist('i0(0:3)')
+      end
+    end
+
+    context "when provided with a non-bus" do
+      it "should create a bus that is bounded at zero" do
+       
+        #Create a non-bus input.
+        subject.set_pin_name(node, 'i')
+
+        subject.set_pin_width!(node, 10)
+        pin_should_exist('i(9:0)')
+
+      end
+    end
   end
 
 

@@ -12,12 +12,19 @@ module ISE
     RecentProjectsPath = 'Project Navigator/Recent Project List1'
 
     #
+    # Sets the path of the preference file to look for.
+    #
+    def set_preference_file(preference_file=nil)
+      @preference_file = preference_file
+    end
+
+    #
     # Loads preferences.
     # By default, preferences are only loaded once.
     #
     def load_preferences(force_reload=false)
       @preferences = nil if force_reload
-      @preferences ||= PreferenceFile.load
+      @preferences ||= PreferenceFile.load(@preference_file)
     end
 
     #
@@ -25,14 +32,14 @@ module ISE
     #
     def version
       load_preferences
-      @preferences.sections.first
+      @preferences.sections.last
     end
 
     #
     # 
     #
     def preferences
-      load_preferences
+      load_preferencers
       return @preferences[version]
     end
 
@@ -48,6 +55,9 @@ module ISE
     # Returns most recently open project. If Project Navigator has a project open,
     # that project will be used. This function re-loads the preferences file upon each call,
     # to ensure we don't have stale data.
+    #
+    # TODO: When more than one ISE version is loaded, parse _all_ of the recent projects,
+    # and then return the project with the latest timestamp.
     #
     def most_recent_project_path
 
@@ -66,7 +76,8 @@ module ISE
     # Returns a project object representing the most recently open project.
     #
     def most_recent_project
-      Project.load(most_recent_project_path)
+      path = most_recent_project_path
+      path ? Project.load(path) : nil
     end
 
   end
